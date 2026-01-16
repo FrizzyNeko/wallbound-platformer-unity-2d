@@ -91,6 +91,9 @@ This project was built with an emphasis on understanding and applying core Unity
 
 ---
 
-## 📌 Development Notes
+## 📌 Development and Project Scope  Notes
 
-Wallbound was developed alongside a structured Unity learning process.
+* Wallbound was developed alongside a structured Unity learning process.
+
+* This project is intentionally focused on core gameplay systems rather than full production polish.
+The goal was to design, implement, and connect fundamental mechanics such as movement, state handling, camera behavior, and game flow in a clean and extendable way.
