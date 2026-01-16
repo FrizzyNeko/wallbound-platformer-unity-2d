@@ -3,82 +3,133 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]
-    float moveSpeed = 8f;
+    [SerializeField] float moveSpeed = 7f;
 
-    [SerializeField]
-    float jumpSpeed = 23f;
+    [SerializeField] float jumpSpeed = 20f;
 
-    [SerializeField]
-    float climbSpeed = 5f;
+    [SerializeField] float climbSpeed = 5f;
 
+    [SerializeField] Vector2 deathKick = new Vector2(10f, 20f);
+
+    [SerializeField] GameObject bullet;
+
+    // Pozisyonunu almak için Transform
+    [SerializeField] Transform gun;
+
+    // Oyuncunun hareket isteðini tut
     Vector2 moveInput;
+
     Rigidbody2D myRigidBody;
     Animator myAnimator;
-    CapsuleCollider2D myCapsuleCollider;
+    CapsuleCollider2D myBodyCollider;
+    BoxCollider2D myFeetCollider;
 
     float graviyScaleAtStart;
 
-    void Start()
+    bool isAlive = true;
+    bool isFacingRight;
+    bool jumpRequested;
+
+
+    private void Awake()
     {
         myRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
-        myCapsuleCollider = GetComponent<CapsuleCollider2D>();
+        myBodyCollider = GetComponent<CapsuleCollider2D>();
+        myFeetCollider = GetComponent<BoxCollider2D>();
+    }
+
+    void Start()
+    {
         graviyScaleAtStart = myRigidBody.gravityScale;
     }
 
     void Update()
     {
-        Run();
+        if (!isAlive) return;
+        UpdateRunAnimation();
         FlipSprite();
         ClimbLadder();
+        Die();
+    }
+    private void FixedUpdate()
+    {
+        if (!isAlive) return;
+        ApplyMovement();
+        HandleJump();
     }
 
+    // Input System çaðýrýr
     void OnMove(InputValue value)
     {
+        if (!isAlive) return;
+        // Klavyeden / gamepad’den gelen yönü sakla
         moveInput = value.Get<Vector2>();
     }
 
     void OnJump(InputValue value)
     {
-        LayerMask groundLayer = LayerMask.GetMask("Ground");
-        bool onGround = myCapsuleCollider.IsTouchingLayers(groundLayer);
+        if (!isAlive) return;
 
-        if (value.isPressed && onGround)
+        if (value.isPressed)
         {
-            myRigidBody.linearVelocity += new Vector2(0f, jumpSpeed);
+            jumpRequested = true;
         }
     }
 
-    void Run()
+    void HandleJump()
     {
-        // Tuþa bastýðýmýzda girilen input'un x deðerini al. y deðerini rigidbody'de ne yazýyorsa öyle býrak. Yani Gravity 1.
-        //Hareket etme kodu.
-        Vector2 playerVelocity = new Vector2(moveInput.x * moveSpeed, myRigidBody.linearVelocity.y);
-        myRigidBody.linearVelocity = playerVelocity;
+        LayerMask groundLayer = LayerMask.GetMask("Ground");
+        bool onGround = myFeetCollider.IsTouchingLayers(groundLayer);
 
-        // Koþuyor muyuz? Animasyonu oynat.
-        bool hasHorizontalSpeed = Mathf.Abs(myRigidBody.linearVelocity.x) > Mathf.Epsilon;
-        myAnimator.SetBool("isRunning", hasHorizontalSpeed);
+        if (jumpRequested && onGround)
+        {
+            myRigidBody.linearVelocity = new Vector2(
+                myRigidBody.linearVelocity.x,
+                jumpSpeed
+            );
+        }
+
+        jumpRequested = false;
     }
+
+    void ApplyMovement()
+    {
+        // x yönü: oyuncunun isteði * hýz
+        // y yönü: gravity ne diyorsa o
+        Vector2 velocity = new Vector2(
+            moveInput.x * moveSpeed,
+            myRigidBody.linearVelocity.y
+        );
+        // Rigidbody’ye uygula
+        myRigidBody.linearVelocity = velocity;
+    }
+
+    void UpdateRunAnimation()
+    {
+        bool hasHorizontalInput = Mathf.Abs(moveInput.x) > Mathf.Epsilon;
+        myAnimator.SetBool("isRunning", hasHorizontalInput);
+    }
+
 
     void FlipSprite()
     {
-        // x hýzýmýz ne olursa olsun pozitif döner. bu dönen rakam en küçük float'tan büyükse true döner.
-        bool hasHorizontalSpeed = Mathf.Abs(myRigidBody.linearVelocity.x) > Mathf.Epsilon;
-
-        // true ise sprite'ý sola veya saða çevir.
-        if (hasHorizontalSpeed)
+        if (Mathf.Abs(moveInput.x) > Mathf.Epsilon)
         {
-            transform.localScale = new Vector2(Mathf.Sign(myRigidBody.linearVelocity.x), 1f);
+            isFacingRight = moveInput.x > 0;
+            transform.localScale = new Vector2(
+                isFacingRight ? 1f : -1f,
+                1f
+            );
         }
     }
+
 
     void ClimbLadder()
     {
         LayerMask climbingLayer = LayerMask.GetMask("Climbing");
 
-        if (!myCapsuleCollider.IsTouchingLayers(climbingLayer))
+        if (!myBodyCollider.IsTouchingLayers(climbingLayer))
         {
             myRigidBody.gravityScale = graviyScaleAtStart;
             myAnimator.SetBool("isClimbing", false);
@@ -91,6 +142,31 @@ public class PlayerMovement : MonoBehaviour
 
         bool hasVerticalSpeed = Mathf.Abs(myRigidBody.linearVelocity.y) > Mathf.Epsilon;
         myAnimator.SetBool("isClimbing", hasVerticalSpeed);
-        
     }
+
+    void OnAttack(InputValue value)
+    {
+        if (!isAlive) return;
+
+        GameObject bulletObj = Instantiate(bullet, gun.position, transform.rotation);
+
+        Bullet bulletScript = bulletObj.GetComponent<Bullet>();
+
+        float direction = transform.localScale.x; 
+
+        bulletScript.Fire(direction);
+    }
+
+    void Die()
+    {
+        if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemies", "Hazards", "Water")))
+        {
+            isAlive = false;
+            myAnimator.SetTrigger("Dying");
+            myRigidBody.linearVelocity = deathKick;
+            FindAnyObjectByType<GameSession>().ProcessPlayerDeath();
+        }
+    }
+
+  
 }
