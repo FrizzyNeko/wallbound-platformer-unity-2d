@@ -1,58 +1,96 @@
 # Wallbound (Unity 2D)
 
-**Wallbound** is a work-in-progress 2D platformer developed in Unity.  
-The project focuses on responsive player movement, vertical traversal mechanics, and dynamic camera behavior, with an emphasis on clean systems and iteration-friendly design.
+**Wallbound** is a 2D platformer game developed in Unity.
+The game focuses on precise movement, environmental interaction, and classic platformer mechanics such as collectibles, hazards, enemies, and level-based progression.
 
-Rather than being a finished product, Wallbound represents an actively evolving platformer project built on a solid technical foundation.
-
----
-
-## 🎮 Current Gameplay Features
-
-- Responsive left–right movement
-- Jump mechanics with controlled air movement
-- Wall climbing mechanics
-- Sprite-based character animations
-- State-driven camera behavior
-- Cinemachine follow camera setup
-- Rule Tile–based level construction
-- Organized sprite sheets for animation workflows
+The player navigates handcrafted platforming levels, collects coins to increase their score, and must carefully manage their limited lives to complete the game.
 
 ---
 
-## 🛠️ Technical Focus
+## 🎮 Gameplay Overview
 
-- Platformer movement and physics handling
-- Climbing and traversal system design
-- Animation state management
-- State-driven camera logic
-- Cinemachine integration for smooth camera transitions
-- Tilemap and Rule Tile usage for scalable level design
+* The game consists of **3 platforming levels**
+* The player completes parkour-style sections to progress
+* **Coins** can be collected to increase the score
+* **Mushrooms** act as bounce pads, launching the player higher to assist traversal
+* The player starts with **3 lives**
+* Falling into water or touching spikes causes death and reduces one life
+* When all lives are lost:
+
+  * The game restarts from the beginning
+  * The score is reset to zero
 
 ---
 
-## 🚧 Project Status
+## ✨ Core Features
 
-Wallbound is currently under active development.  
-Core movement, traversal, animation, and camera systems are implemented, forming the technical backbone of the project.
+* 2D platformer movement and traversal
+* Three handcrafted levels
+* Coin-based scoring system
+* Life and death management system
+* Environmental hazards (water, spikes)
+* Bounce mechanics using mushroom platforms
+* Basic enemy AI
+* Player shooting mechanic triggered by input
+* Sound effects and visual feedback
+* State-driven camera system
+* Sprite-based animations with state transitions
 
-New gameplay systems and content are being added incrementally.
+---
+
+## 🛠️ Technical Focus & Systems
+
+This project was built with an emphasis on understanding and applying core Unity systems and game development principles.
+
+### Gameplay & Systems
+
+* Basic enemy AI behavior
+* Persistent game objects across scenes
+* Singleton pattern usage
+* Bullet system using `Instantiate` and `Destroy`
+* Coroutine-based delays and timing control
+* Life and score management systems
+
+### Unity Engine Concepts
+
+* Unity lifecycle methods and execution order
+* New Unity Input System
+* Tilemap and Tileset creation
+* Rule Tile usage for scalable level design
+* Prefab Variants for modular content
+* Physics Material 2D for movement behavior
+* Layer and Tag-based collision handling
+* Audio integration for gameplay feedback
+
+### Architecture & Design
+
+* State-driven camera behavior
+* Animation state management (idle, run, climb)
+* Awareness of performance implications of `Instantiate` and `Destroy`
+* Application of SOLID principles in gameplay code
+
+---
+
+## 🎯 What This Project Demonstrates
+
+* Clean separation of gameplay responsibilities
+* Practical use of Unity’s core systems
+* Iterative development from mechanics to full game loop
+* Foundational game architecture suitable for extension
 
 ---
 
 ## 🚀 Possible Improvements
 
-- Enemy AI and environmental hazards
-- Collectibles and checkpoint system
-- Level progression and difficulty scaling
-- Improved player feedback (visual and audio effects)
-- Additional camera states and transitions
-- Polished level design and environmental variety
+* Enemy variety and more advanced AI behaviors
+* Additional levels and difficulty progression
+* Checkpoint system to reduce full restarts
+* Expanded combat mechanics
+* Visual polish and particle effects
+* UI improvements for lives and score feedback
 
 ---
 
 ## 📌 Development Notes
 
-This project is being developed alongside a structured Unity learning process and is extended with personal technical and design decisions beyond the course material.
-
-The repository reflects an iterative development approach rather than a finalized release.
+Wallbound was developed alongside a structured Unity learning process.
